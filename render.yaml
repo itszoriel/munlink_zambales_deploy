@@ -100,8 +100,9 @@
 
     region: singapore
     databaseName: munlink_zambales
-    user: munlink_user
+        postgresVersion: 15
     plan: basic-256mb  # Updated to supported plan (replaces legacy 'starter')
+
 
 
 
