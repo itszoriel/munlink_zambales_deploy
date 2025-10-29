@@ -25,7 +25,7 @@ services:
       - key: JWT_COOKIE_SECURE
         value: "True"
       - key: JWT_COOKIE_SAMESITE
-        value: None
+        value: "None"
       - key: COOKIE_DOMAIN
         value: munlinkapi.onrender.com
       - key: JWT_ACCESS_TOKEN_EXPIRES
