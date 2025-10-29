@@ -58,15 +58,32 @@ apiClient.interceptors.response.use(
 
       try {
         const { refreshToken, setTokens } = useAdminStore.getState()
+        let access_token: string | undefined
+        let refresh_token: string | undefined
+
         if (refreshToken) {
-          const response = await axios.post(`${API_BASE_URL}/api/auth/refresh`, undefined, {
-            headers: { Authorization: `Bearer ${refreshToken}` },
-          })
+          const response = await axios.post(
+            `${API_BASE_URL}/api/auth/refresh`,
+            undefined,
+            { headers: { Authorization: `Bearer ${refreshToken}` } }
+          )
+          access_token = response.data?.access_token
+          refresh_token = response.data?.refresh_token
+        } else {
+          // Cookie-based refresh (cross-site); relies on Set-Cookie from login
+          const response = await axios.post(
+            `${API_BASE_URL}/api/auth/refresh`,
+            {},
+            { withCredentials: true, validateStatus: () => true }
+          )
+          if (response.status === 200) {
+            access_token = response.data?.access_token
+          }
+        }
 
-          const { access_token, refresh_token } = response.data
+        if (access_token) {
           setTokens(access_token, refresh_token)
-
-          // Retry original request with new token
+          originalRequest.headers = originalRequest.headers || {}
           originalRequest.headers.Authorization = `Bearer ${access_token}`
           return apiClient(originalRequest)
         }

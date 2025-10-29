@@ -23,7 +23,7 @@ type AdminState = {
   accessToken?: string
   refreshToken?: string
   isAuthenticated: boolean
-  setAuth: (user: User, accessToken: string, refreshToken: string) => void
+  setAuth: (user: User, accessToken: string, refreshToken?: string) => void
   setTokens: (accessToken: string, refreshToken?: string) => void
   logout: () => void
   updateUser: (user: User) => void
@@ -50,7 +50,9 @@ export const useAdminStore = create<AdminState>((set) => {
     setAuth: (user, accessToken, refreshToken) => {
       if (typeof window !== 'undefined') {
         localStorage.setItem('admin:access_token', accessToken)
-        localStorage.setItem('admin:refresh_token', refreshToken)
+        if (refreshToken) {
+          localStorage.setItem('admin:refresh_token', refreshToken)
+        }
         localStorage.setItem('admin:user', JSON.stringify(user))
       }
       set({ user, accessToken, refreshToken, isAuthenticated: true })
