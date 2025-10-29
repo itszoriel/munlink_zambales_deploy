@@ -1,14 +1,13 @@
-﻿services:
+services:
   # Backend API (Python/Flask)
   - type: web
-    name: munlinkzambales-api
-    repo: https://github.com/itszoriel/munlink_zambales
+    name: munlinkapi
     runtime: python
     rootDir: apps/api
     buildCommand: |
       pip install --no-cache-dir -r requirements.txt
       pip install --no-cache-dir psycopg2-binary==2.9.9
-    startCommand: flask db upgrade && gunicorn app:app --bind 0.0.0.0: --workers 4 --timeout 120 --max-requests 1000 --max-requests-jitter 50
+    startCommand: "flask db upgrade && gunicorn app:app --bind 0.0.0.0:$PORT --workers 4 --timeout 120 --max-requests 1000 --max-requests-jitter 50"
     healthCheckPath: /health
     envVars:
       - key: FLASK_ENV
@@ -75,8 +74,7 @@
 
   # Public Website (React/Vite)
   - type: web
-    name: munlinkzambales-web
-    repo: https://github.com/itszoriel/munlink_zambales
+    name: munlinkzambales
     runtime: static
     rootDir: apps/web
     buildCommand: npm ci && npm run build
@@ -84,11 +82,12 @@
     envVars:
       - key: VITE_API_URL
         value: https://munlinkapi.onrender.com
+      - key: VITE_API_BASE_URL
+        value: https://munlinkapi.onrender.com
 
   # Admin Dashboard (React/Vite)
   - type: web
-    name: munlink-admin
-    repo: https://github.com/itszoriel/munlink_zambales
+    name: munlinkadmin
     runtime: static
     rootDir: apps/admin
     buildCommand: npm ci && npm run build
@@ -103,4 +102,5 @@ databases:
   - name: munlink-db
     databaseName: munlink_zambales
     user: munlink_user
-    plan: starter  # Professional plan supports better DB options
+    plan: basic-256mb  # Updated to supported plan (replaces legacy 'starter')
+
