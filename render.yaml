@@ -1,13 +1,14 @@
 ﻿services:
   # Backend API (Python/Flask)
   - type: web
-        region: singapore
+    name: munlinkzambales-api
     runtime: python
+    region: singapore
     rootDir: apps/api
     buildCommand: |
       pip install --no-cache-dir -r requirements.txt
       pip install --no-cache-dir psycopg2-binary==2.9.9
-    startCommand: "flask db upgrade && gunicorn app:app --bind 0.0.0.0:$PORT --workers 4 --timeout 120 --max-requests 1000 --max-requests-jitter 50"
+    startCommand: flask db upgrade && gunicorn app:app --bind 0.0.0.0: --workers 4 --timeout 120 --max-requests 1000 --max-requests-jitter 50
     healthCheckPath: /health
     envVars:
       - key: FLASK_ENV
@@ -69,26 +70,26 @@
     disk:
       name: uploads
       mountPath: ./uploads
-      sizeGB: 50  # Professional plan - increased for production uploads
-    plan: standard  # Professional tier for no cold starts
+      sizeGB: 50
+    plan: standard
 
   # Public Website (React/Vite)
   - type: web
-        region: singapore
+    name: munlinkzambales-web
     runtime: static
+    region: singapore
     rootDir: apps/web
     buildCommand: npm install --no-audit --no-fund && npm run build
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
         value: https://munlinkapi.onrender.com
-      - key: VITE_API_BASE_URL
-        value: https://munlinkapi.onrender.com
 
   # Admin Dashboard (React/Vite)
   - type: web
-        region: singapore
+    name: munlink-admin
     runtime: static
+    region: singapore
     rootDir: apps/admin
     buildCommand: npm install --no-audit --no-fund && npm run build
     staticPublishPath: dist
@@ -98,11 +99,10 @@
       - key: VITE_API_BASE_URL
         value: https://munlinkapi.onrender.com
 
+databases:
+  - name: munlink-db
     region: singapore
     databaseName: munlink_zambales
-        postgresVersion: 15
-    plan: basic-256mb  # Updated to supported plan (replaces legacy 'starter')
-
-
-
-
+    user: munlink_user
+    plan: basic-256mb
+    postgresVersion: 15
