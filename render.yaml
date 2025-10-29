@@ -1,4 +1,4 @@
-services:
+﻿services:
   # Backend API (Python/Flask)
   - type: web
     name: munlinkapi
@@ -98,9 +98,9 @@ services:
       - key: VITE_API_BASE_URL
         value: https://munlinkapi.onrender.com
 
-databases:
-  - name: munlink-db
+    region: singapore
     databaseName: munlink_zambales
     user: munlink_user
     plan: basic-256mb  # Updated to supported plan (replaces legacy 'starter')
+
 
