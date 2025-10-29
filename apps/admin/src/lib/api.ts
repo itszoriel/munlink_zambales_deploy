@@ -23,6 +23,7 @@ const apiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 })
 
 // Request interceptor to add auth token
@@ -122,19 +123,9 @@ export interface PaginatedResponse<T> {
 // Auth API
 export const authApi = {
   adminLogin: async (payload: { username?: string; email?: string; password: string }): Promise<ApiResponse & { access_token: string; refresh_token: string; user: any }> => {
-    // Prefer generic login endpoint (exists), avoids preflight to non-existent admin route
-    try {
-      const res = await apiClient.post('/api/auth/login', payload)
-      return res.data
-    } catch (e: any) {
-      // If generic login is missing, try admin-specific
-      try {
-        const res = await apiClient.post('/api/auth/admin/login', payload)
-        return res.data
-      } catch (e2) {
-        throw e
-      }
-    }
+    // Use generic login endpoint (exists on backend)
+    const res = await apiClient.post('/api/auth/login', payload)
+    return res.data
   },
   getProfile: async (): Promise<ApiResponse<any>> =>
     apiClient.get('/api/auth/profile').then(res => res.data),
