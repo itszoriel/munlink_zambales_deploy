@@ -1,13 +1,13 @@
-﻿services:
+services:
   # Backend API (Python/Flask)
   - type: web
-        region: singapore
+    name: munlinkzambales-api
     runtime: python
     rootDir: apps/api
     buildCommand: |
       pip install --no-cache-dir -r requirements.txt
       pip install --no-cache-dir psycopg2-binary==2.9.9
-    startCommand: "flask db upgrade && gunicorn app:app --bind 0.0.0.0:$PORT --workers 4 --timeout 120 --max-requests 1000 --max-requests-jitter 50"
+    startCommand: flask db upgrade && gunicorn app:app --bind 0.0.0.0:$PORT --workers 4 --timeout 120 --max-requests 1000 --max-requests-jitter 50
     healthCheckPath: /health
     envVars:
       - key: FLASK_ENV
@@ -31,19 +31,19 @@
           name: munlink-db
           property: connectionString
       - key: WEB_URL
-        value: https://munlinkzambales.onrender.com
+        value: https://munlinkzambales-web.onrender.com
       - key: ADMIN_URL
-        value: https://munlinkadmin.onrender.com
+        value: https://munlink-admin.onrender.com
       - key: BASE_URL
         value: https://munlinkapi.onrender.com
       - key: QR_BASE_URL
-        value: https://munlinkzambales.onrender.com/verify
+        value: https://munlinkzambales-web.onrender.com/verify
       - key: VERIFICATION_BASE_URL
-        value: https://munlinkzambales.onrender.com
+        value: https://munlinkzambales-web.onrender.com
       - key: WEB_BASE_URL
-        value: https://munlinkzambales.onrender.com
+        value: https://munlinkzambales-web.onrender.com
       - key: ADMIN_WEB_BASE_URL
-        value: https://munlinkadmin.onrender.com
+        value: https://munlink-admin.onrender.com
       - key: UPLOAD_FOLDER
         value: uploads/zambales
       - key: MAX_FILE_SIZE
@@ -74,23 +74,21 @@
 
   # Public Website (React/Vite)
   - type: web
-        region: singapore
+    name: munlinkzambales-web
     runtime: static
     rootDir: apps/web
-    buildCommand: npm install --no-audit --no-fund && npm run build
+    buildCommand: npm ci && npm run build
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
-        value: https://munlinkapi.onrender.com
-      - key: VITE_API_BASE_URL
         value: https://munlinkapi.onrender.com
 
   # Admin Dashboard (React/Vite)
   - type: web
-        region: singapore
+    name: munlink-admin
     runtime: static
     rootDir: apps/admin
-    buildCommand: npm install --no-audit --no-fund && npm run build
+    buildCommand: npm ci && npm run build
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
@@ -98,9 +96,9 @@
       - key: VITE_API_BASE_URL
         value: https://munlinkapi.onrender.com
 
-    region: singapore
+databases:
+  - name: munlink-db
     databaseName: munlink_zambales
     user: munlink_user
-    plan: basic-256mb  # Updated to supported plan (replaces legacy 'starter')
-
+    plan: starter  # Professional plan supports better DB options
 
