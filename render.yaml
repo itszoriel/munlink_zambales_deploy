@@ -105,5 +105,4 @@ databases:
     databaseName: munlink_zambales
     user: munlink_user
     plan: basic-256mb
-    postgresVersion: 15
 
