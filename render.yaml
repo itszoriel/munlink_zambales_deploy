@@ -79,7 +79,7 @@
     repo: https://github.com/itszoriel/munlink_zambales
     runtime: static
     rootDir: apps/web
-    buildCommand: npm ci && npm run build
+    buildCommand: npm install --no-audit --no-fund && npm run build
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
@@ -91,7 +91,7 @@
     repo: https://github.com/itszoriel/munlink_zambales
     runtime: static
     rootDir: apps/admin
-    buildCommand: npm ci && npm run build
+    buildCommand: npm install --no-audit --no-fund && npm run build
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
@@ -104,3 +104,4 @@ databases:
     databaseName: munlink_zambales
     user: munlink_user
     plan: starter  # Professional plan supports better DB options
+
