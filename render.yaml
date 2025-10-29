@@ -22,6 +22,12 @@ services:
         sync: false
       - key: JWT_SECRET_KEY
         sync: false
+      - key: JWT_COOKIE_SECURE
+        value: "True"
+      - key: JWT_COOKIE_SAMESITE
+        value: None
+      - key: COOKIE_DOMAIN
+        value: munlinkapi.onrender.com
       - key: JWT_ACCESS_TOKEN_EXPIRES
         value: "86400"
       - key: ADMIN_SECRET_KEY
