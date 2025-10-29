@@ -1,0 +1,5 @@
+﻿# Prevent committing local secret templates
+ENV_RENDER_COPY.txt
+RENDER_SECRETS_COPYPASTE.txt
+*.env
+.env*
