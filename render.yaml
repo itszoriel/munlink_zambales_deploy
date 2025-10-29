@@ -8,7 +8,7 @@
     buildCommand: |
       pip install --no-cache-dir -r requirements.txt
       pip install --no-cache-dir psycopg2-binary==2.9.9
-    startCommand: flask db upgrade && gunicorn app:app --bind 0.0.0.0: --workers 4 --timeout 120 --max-requests 1000 --max-requests-jitter 50
+    startCommand: "flask db upgrade && gunicorn app:app --bind 0.0.0.0:$PORT --workers 4 --timeout 120 --max-requests 1000 --max-requests-jitter 50"
     healthCheckPath: /health
     envVars:
       - key: FLASK_ENV
@@ -106,3 +106,4 @@ databases:
     user: munlink_user
     plan: basic-256mb
     postgresVersion: 15
+
