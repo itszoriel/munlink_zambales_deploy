@@ -40,15 +40,28 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     jwt.init_app(app)
     
-    # CORS configuration
+    # CORS configuration (include both current and legacy domains)
+    allowed_origins = [
+        app.config.get('WEB_URL'),
+        app.config.get('ADMIN_URL'),
+        os.getenv('WEB_BASE_URL'),
+        os.getenv('ADMIN_WEB_BASE_URL'),
+        # Current deployed domains
+        'https://munlinkzambales-web.onrender.com',
+        'https://munlink-admin.onrender.com',
+        # Legacy domains kept for safety during transition
+        'https://munlinkzambales.onrender.com',
+        'https://munlinkadmin.onrender.com',
+        # Local dev
+        'http://localhost:3000',
+        'http://localhost:3001',
+    ]
+    # Remove falsy values and duplicates
+    allowed_origins = sorted(set([o for o in allowed_origins if o]))
+
     CORS(app, resources={
         r"/api/*": {
-            "origins": [
-                app.config['WEB_URL'],
-                app.config['ADMIN_URL'],
-                "http://localhost:3000",
-                "http://localhost:3001"
-            ],
+            "origins": allowed_origins,
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "supports_credentials": True
