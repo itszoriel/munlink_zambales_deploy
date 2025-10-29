@@ -26,6 +26,9 @@ const apiClient: AxiosInstance = axios.create({
   withCredentials: true,
 })
 
+// Typed helper to unwrap Axios responses without implicit any on parameters
+const mapData = <T>(res: AxiosResponse<T>) => res.data
+
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
   (config) => {
@@ -145,13 +148,13 @@ export const authApi = {
     return res.data
   },
   getProfile: async (): Promise<ApiResponse<any>> =>
-    apiClient.get('/api/auth/profile').then(res => res.data),
+    apiClient.get('/api/auth/profile').then(mapData),
   updateProfile: async (data: Partial<{ first_name: string; middle_name?: string; last_name: string; suffix?: string; phone_number?: string; street_address?: string }>): Promise<ApiResponse<any>> =>
-    apiClient.put('/api/auth/profile', data).then(res => res.data),
+    apiClient.put('/api/auth/profile', data).then(mapData),
   uploadProfilePhoto: async (file: File): Promise<ApiResponse<any>> => {
     const form = new FormData()
     form.append('file', file)
-    return apiClient.post('/api/auth/profile/photo', form, { headers: { 'Content-Type': 'multipart/form-data' } }).then(res => res.data)
+    return apiClient.post('/api/auth/profile/photo', form, { headers: { 'Content-Type': 'multipart/form-data' } }).then(mapData)
   },
 }
 
@@ -168,19 +171,19 @@ export const mediaUrl = (p?: string): string => {
 export const userApi = {
   // Get pending users for verification
   getPendingUsers: (): Promise<ApiResponse<{ users: any[]; count: number }>> =>
-    apiClient.get('/api/admin/users/pending').then(res => res.data),
+    apiClient.get('/api/admin/users/pending').then(mapData),
 
   // Get verified users with pagination
   getVerifiedUsers: (page = 1, perPage = 20): Promise<PaginatedResponse<any>> =>
-    apiClient.get(`/api/admin/users/verified?page=${page}&per_page=${perPage}`).then(res => res.data),
+    apiClient.get(`/api/admin/users/verified?page=${page}&per_page=${perPage}`).then(mapData),
 
   // Verify a user
   verifyUser: (userId: number): Promise<ApiResponse> =>
-    apiClient.post(`/api/admin/users/${userId}/verify`).then(res => res.data),
+    apiClient.post(`/api/admin/users/${userId}/verify`).then(mapData),
 
   // Reject a user
   rejectUser: (userId: number, reason: string): Promise<ApiResponse> =>
-    apiClient.post(`/api/admin/users/${userId}/reject`, { reason }).then(res => res.data),
+    apiClient.post(`/api/admin/users/${userId}/reject`, { reason }).then(mapData),
 
   // Get user statistics
   getUserStats: (): Promise<ApiResponse<{
@@ -189,11 +192,11 @@ export const userApi = {
     verified_users: number
     recent_registrations: number
   }>> =>
-    apiClient.get('/api/admin/users/stats').then(res => res.data),
+    apiClient.get('/api/admin/users/stats').then(mapData),
 
   // Get user by id (detail for modal)
   getUserById: (userId: number): Promise<ApiResponse<any>> =>
-    apiClient.get(`/api/admin/users/${userId}`).then(res => res.data),
+    apiClient.get(`/api/admin/users/${userId}`).then(mapData),
 }
 
 // Issue Management API
@@ -211,20 +214,20 @@ export const issueApi = {
     if (filters.page) params.append('page', filters.page.toString())
     if (filters.per_page) params.append('per_page', filters.per_page.toString())
     
-    return apiClient.get(`/api/admin/issues?${params.toString()}`).then(res => res.data)
+    return apiClient.get(`/api/admin/issues?${params.toString()}`).then(mapData)
   },
 
   // Get issue details
   getIssue: (issueId: number): Promise<ApiResponse<any>> =>
-    apiClient.get(`/api/admin/issues/${issueId}`).then(res => res.data),
+    apiClient.get(`/api/admin/issues/${issueId}`).then(mapData),
 
   // Update issue status
   updateIssueStatus: (issueId: number, status: string): Promise<ApiResponse> =>
-    apiClient.put(`/api/admin/issues/${issueId}/status`, { status }).then(res => res.data),
+    apiClient.put(`/api/admin/issues/${issueId}/status`, { status }).then(mapData),
 
   // Add admin response to issue
   addIssueResponse: (issueId: number, response: string): Promise<ApiResponse> =>
-    apiClient.post(`/api/admin/issues/${issueId}/response`, { response }).then(res => res.data),
+    apiClient.post(`/api/admin/issues/${issueId}/response`, { response }).then(mapData),
 
   // Get issue statistics
   getIssueStats: (): Promise<ApiResponse<{
@@ -233,22 +236,22 @@ export const issueApi = {
     active_issues: number
     resolved_issues: number
   }>> =>
-    apiClient.get('/api/admin/issues/stats').then(res => res.data),
+    apiClient.get('/api/admin/issues/stats').then(mapData),
 }
 
 // Marketplace API
 export const marketplaceApi = {
   // Get pending marketplace items
   getPendingItems: (): Promise<ApiResponse<{ items: any[]; count: number }>> =>
-    apiClient.get('/api/admin/marketplace/pending').then(res => res.data),
+    apiClient.get('/api/admin/marketplace/pending').then(mapData),
 
   // Approve marketplace item
   approveItem: (itemId: number): Promise<ApiResponse> =>
-    apiClient.post(`/api/admin/marketplace/${itemId}/approve`).then(res => res.data),
+    apiClient.post(`/api/admin/marketplace/${itemId}/approve`).then(mapData),
 
   // Reject marketplace item
   rejectItem: (itemId: number, reason: string): Promise<ApiResponse> =>
-    apiClient.post(`/api/admin/marketplace/${itemId}/reject`, { reason }).then(res => res.data),
+    apiClient.post(`/api/admin/marketplace/${itemId}/reject`, { reason }).then(mapData),
 
   // Get marketplace statistics
   getMarketplaceStats: (): Promise<ApiResponse<{
@@ -257,27 +260,27 @@ export const marketplaceApi = {
     approved_items: number
     rejected_items: number
   }>> =>
-    apiClient.get('/api/admin/marketplace/stats').then(res => res.data),
+    apiClient.get('/api/admin/marketplace/stats').then(mapData),
   // Public list (scoped by municipality/status) via public endpoint
   listPublicItems: (params: { municipality_id?: number; status?: string; page?: number; per_page?: number; category?: string; transaction_type?: string } = {}): Promise<ApiResponse<{ items: any[]; total: number; page: number; per_page: number; pages: number }>> =>
-    apiClient.get('/api/marketplace/items', { params }).then(res => res.data),
+    apiClient.get('/api/marketplace/items', { params }).then(mapData),
 }
 
 // Transactions (Admin)
 export const transactionsAdminApi = {
   list: (params: { status?: string; page?: number; per_page?: number } = {}): Promise<ApiResponse<{ transactions: any[]; total: number; page: number; pages: number; per_page: number }>> =>
-    apiClient.get('/api/admin/transactions', { params }).then(res => res.data),
+    apiClient.get('/api/admin/transactions', { params }).then(mapData),
   get: (id: number): Promise<ApiResponse<{ transaction: any; audit: any[] }>> =>
-    apiClient.get(`/api/admin/transactions/${id}`).then(res => res.data),
+    apiClient.get(`/api/admin/transactions/${id}`).then(mapData),
   setStatus: (id: number, status: 'under_review' | 'resolved' | 'confirmed_scam', notes?: string): Promise<ApiResponse<{ message: string }>> =>
-    apiClient.put(`/api/admin/transactions/${id}/status`, { status, notes }).then(res => res.data),
+    apiClient.put(`/api/admin/transactions/${id}/status`, { status, notes }).then(mapData),
 }
 
 // Announcements API
 export const announcementApi = {
   // Get all announcements
   getAnnouncements: (): Promise<ApiResponse<{ announcements: any[]; count: number }>> =>
-    apiClient.get('/api/admin/announcements').then(res => res.data),
+    apiClient.get('/api/admin/announcements').then(mapData),
 
   // Create announcement
   createAnnouncement: (data: {
@@ -286,7 +289,7 @@ export const announcementApi = {
     priority: 'high' | 'medium' | 'low'
     external_url?: string
   }): Promise<ApiResponse> =>
-    apiClient.post('/api/admin/announcements', data).then(res => res.data),
+    apiClient.post('/api/admin/announcements', data).then(mapData),
 
   // Upload announcement image
   uploadImage: (id: number, file: File): Promise<ApiResponse<{ path: string; announcement: any }>> => {
@@ -294,7 +297,7 @@ export const announcementApi = {
     form.append('file', file)
     return apiClient.post(`/api/admin/announcements/${id}/upload`, form, {
       headers: { 'Content-Type': 'multipart/form-data' },
-    }).then(res => res.data)
+    }).then(mapData)
   },
 
   // Upload multiple images (batch)
@@ -304,7 +307,7 @@ export const announcementApi = {
     files.forEach((f) => form.append('file', f))
     return apiClient.post(`/api/admin/announcements/${id}/uploads`, form, {
       headers: { 'Content-Type': 'multipart/form-data' },
-    }).then(res => res.data)
+    }).then(mapData)
   },
 
   // Update announcement
@@ -316,11 +319,11 @@ export const announcementApi = {
     images?: string[]
     external_url?: string
   }): Promise<ApiResponse> =>
-    apiClient.put(`/api/admin/announcements/${id}`, data).then(res => res.data),
+    apiClient.put(`/api/admin/announcements/${id}`, data).then(mapData),
 
   // Delete announcement
   deleteAnnouncement: (id: number): Promise<ApiResponse> =>
-    apiClient.delete(`/api/admin/announcements/${id}`).then(res => res.data),
+    apiClient.delete(`/api/admin/announcements/${id}`).then(mapData),
 
   // Get announcement statistics
   getAnnouncementStats: (): Promise<ApiResponse<{
@@ -328,7 +331,7 @@ export const announcementApi = {
     active_announcements: number
     high_priority: number
   }>> =>
-    apiClient.get('/api/admin/announcements/stats').then(res => res.data),
+    apiClient.get('/api/admin/announcements/stats').then(mapData),
 }
 
 // Benefits API
@@ -348,15 +351,15 @@ export const benefitsApi = {
 // Admin Benefits API
 export const benefitsAdminApi = {
   listPrograms: (): Promise<ApiResponse<{ programs: any[]; count: number }>> =>
-    apiClient.get('/api/admin/benefits/programs').then((res) => res.data),
+    apiClient.get('/api/admin/benefits/programs').then(mapData),
   createProgram: (data: any): Promise<ApiResponse> =>
-    apiClient.post('/api/admin/benefits/programs', data).then((res) => res.data),
+    apiClient.post('/api/admin/benefits/programs', data).then(mapData),
   updateProgram: (id: number, data: any): Promise<ApiResponse> =>
-    apiClient.put(`/api/admin/benefits/programs/${id}`, data).then((res) => res.data),
+    apiClient.put(`/api/admin/benefits/programs/${id}`, data).then(mapData),
   completeProgram: (id: number): Promise<ApiResponse> =>
-    apiClient.put(`/api/admin/benefits/programs/${id}/complete`, {}).then((res) => res.data),
+    apiClient.put(`/api/admin/benefits/programs/${id}/complete`, {}).then(mapData),
   deleteProgram: (id: number): Promise<ApiResponse> =>
-    apiClient.delete(`/api/admin/benefits/programs/${id}`).then((res) => res.data),
+    apiClient.delete(`/api/admin/benefits/programs/${id}`).then(mapData),
 }
 
 // Dashboard API
@@ -368,22 +371,22 @@ export const dashboardApi = {
     marketplace_items: number
     announcements: number
   }>> =>
-    apiClient.get('/api/admin/dashboard/stats').then(res => res.data),
+    apiClient.get('/api/admin/dashboard/stats').then(mapData),
   getUserGrowth: (range: string = 'last_30_days'): Promise<ApiResponse<{ series: Array<{ day: string; count: number }> }>> =>
-    apiClient.get('/api/admin/users/growth', { params: { range } }).then(res => res.data),
+    apiClient.get('/api/admin/users/growth', { params: { range } }).then(mapData),
 }
 
 // Transfers (Resident Municipality Transfers)
 export const transferAdminApi = {
   list: (params: { status?: string; q?: string; page?: number; per_page?: number; sort?: string; order?: 'asc'|'desc' } = {}): Promise<ApiResponse<{ transfers: any[]; count?: number; page?: number; pages?: number; per_page?: number; total?: number }>> =>
-    apiClient.get('/api/admin/transfers', { params }).then(res => res.data),
+    apiClient.get('/api/admin/transfers', { params }).then(mapData),
   updateStatus: (id: number, status: 'approved' | 'rejected' | 'accepted'): Promise<ApiResponse<{ transfer: any }>> =>
-    apiClient.put(`/api/admin/transfers/${id}/status`, { status }).then(res => res.data),
+    apiClient.put(`/api/admin/transfers/${id}/status`, { status }).then(mapData),
 }
 
 export const municipalitiesApi = {
   list: (): Promise<ApiResponse<{ municipalities: any[] }>> =>
-    apiClient.get('/api/municipalities').then(res => res.data),
+    apiClient.get('/api/municipalities').then(mapData),
 }
 
 // Admin aggregate API matching requested endpoints
@@ -480,41 +483,41 @@ export default apiClient
 // Admin Reports supplemental APIs
 export const documentsAdminApi = {
   getStats: (range: string = 'last_30_days'): Promise<ApiResponse<{ total_requests: number; top_requested: Array<{ name: string; count: number }> }>> =>
-    apiClient.get('/api/admin/documents/stats', { params: { range } }).then(res => res.data),
+    apiClient.get('/api/admin/documents/stats', { params: { range } }).then(mapData),
   listRequests: (params: Record<string, any> = {}): Promise<ApiResponse<{ requests: any[]; pagination?: any }>> =>
-    apiClient.get('/api/admin/documents/requests', { params }).then(res => res.data),
+    apiClient.get('/api/admin/documents/requests', { params }).then(mapData),
   generatePdf: (id: number): Promise<ApiResponse<{ url: string; request: any }>> =>
-    apiClient.post(`/api/admin/documents/requests/${id}/generate-pdf`).then(res => res.data),
+    apiClient.post(`/api/admin/documents/requests/${id}/generate-pdf`).then(mapData),
   downloadPdf: (id: number): Promise<ApiResponse<{ url: string }>> =>
-    apiClient.get(`/api/admin/documents/requests/${id}/download`).then(res => res.data),
+    apiClient.get(`/api/admin/documents/requests/${id}/download`).then(mapData),
   updateStatus: (id: number, status: string, admin_notes?: string, rejection_reason?: string): Promise<ApiResponse<{ request: any }>> =>
-    apiClient.put(`/api/admin/documents/requests/${id}/status`, { status, admin_notes, rejection_reason }).then(res => res.data),
+    apiClient.put(`/api/admin/documents/requests/${id}/status`, { status, admin_notes, rejection_reason }).then(mapData),
   updateContent: (id: number, data: { purpose?: string; remarks?: string; civil_status?: string; age?: number }): Promise<ApiResponse<{ request: any }>> =>
-    apiClient.put(`/api/admin/documents/requests/${id}/content`, data).then(res => res.data),
+    apiClient.put(`/api/admin/documents/requests/${id}/content`, data).then(mapData),
   readyForPickup: (id: number, window?: { window_start?: string; window_end?: string }): Promise<ApiResponse<{ claim: { qr_path: string; code_masked: string; window_start?: string; window_end?: string; token: string }, request: any }>> =>
-    apiClient.post(`/api/admin/documents/requests/${id}/ready-for-pickup`, window || {}).then(res => res.data),
+    apiClient.post(`/api/admin/documents/requests/${id}/ready-for-pickup`, window || {}).then(mapData),
   claimToken: (id: number, window?: { window_start?: string; window_end?: string }): Promise<ApiResponse<{ claim: { qr_path: string; code_masked: string; window_start?: string; window_end?: string; token: string }, request: any }>> =>
-    apiClient.post(`/api/admin/documents/requests/${id}/claim-token`, window || {}).then(res => res.data),
+    apiClient.post(`/api/admin/documents/requests/${id}/claim-token`, window || {}).then(mapData),
   verifyClaim: (payload: { token?: string; code?: string; request_id?: number }): Promise<ApiResponse<{ ok: boolean; request?: any }>> =>
-    apiClient.post('/api/admin/claim/verify', payload).then(res => res.data),
+    apiClient.post('/api/admin/claim/verify', payload).then(mapData),
 }
 
 export const municipalitiesAdminApi = {
   getPerformance: (range: string = 'last_30_days'): Promise<ApiResponse<{ municipalities: Array<{ id: number; name: string; users: number; listings: number; documents: number; benefits_active?: number; disputes?: number }> }>> =>
-    apiClient.get('/api/admin/municipalities/performance', { params: { range } }).then(res => res.data),
+    apiClient.get('/api/admin/municipalities/performance', { params: { range } }).then(mapData),
 }
 
 // Admin Exports & Audit
 export const exportAdminApi = {
   exportPdf: (entity: 'users'|'benefits'|'requests'|'issues'|'items'|'announcements'|'audit', filters?: any): Promise<ApiResponse<{ url: string; summary?: any }>> =>
-    apiClient.post(`/api/admin/exports/${entity}.pdf`, filters || {}).then(res => res.data),
+    apiClient.post(`/api/admin/exports/${entity}.pdf`, filters || {}).then(mapData),
   exportExcel: (entity: 'users'|'benefits'|'requests'|'issues'|'items'|'announcements'|'audit', filters?: any): Promise<ApiResponse<{ url: string; summary?: any }>> =>
-    apiClient.post(`/api/admin/exports/${entity}.xlsx`, filters || {}).then(res => res.data),
+    apiClient.post(`/api/admin/exports/${entity}.xlsx`, filters || {}).then(mapData),
   cleanup: (payload: { entity: 'announcements'|'requests'|'users'|'benefits'|'issues'|'items'; before?: string; confirm: 'DELETE'; archive?: boolean }): Promise<ApiResponse<{ deleted_count: number; archived_url?: string }>> =>
-    apiClient.post('/api/admin/cleanup', payload).then(res => res.data),
+    apiClient.post('/api/admin/cleanup', payload).then(mapData),
 }
 
 export const auditAdminApi = {
   list: (params: { entity_type?: string; entity_id?: number; actor_role?: string; action?: string; from?: string; to?: string; page?: number; per_page?: number } = {}): Promise<ApiResponse<{ logs: any[]; page: number; pages: number; per_page: number; total: number }>> =>
-    apiClient.get('/api/admin/audit', { params }).then(res => res.data),
+    apiClient.get('/api/admin/audit', { params }).then(mapData),
 }
