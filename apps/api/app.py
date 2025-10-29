@@ -60,10 +60,16 @@ def create_app(config_class=Config):
     allowed_origins = sorted(set([o for o in allowed_origins if o]))
 
     CORS(app, resources={
-        r"/api/*": {
+        r"/*": {
             "origins": allowed_origins,
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"],
+            "allow_headers": [
+                "Content-Type",
+                "Authorization",
+                "X-Requested-With",
+                "Accept",
+                "Origin"
+            ],
             "supports_credentials": True
         }
     })
